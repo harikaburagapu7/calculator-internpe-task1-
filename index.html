@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body class="bg-gray-900 dark:bg-white flex items-center justify-center min-h-screen px-4 transition-colors duration-500">
+
+  <div class="w-full max-w-xs bg-gray-800 dark:bg-gray-100 p-6 rounded-3xl shadow-2xl transition-all duration-300 relative">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-gray-300 dark:text-gray-700 font-medium"> Made by Harika❤️</span>
+      <div class="space-x-3 flex items-center">
+        <button onclick="toggleSound()" title="Toggle Sound" class="text-blue-400 hover:text-blue-300 text-lg"><i id="soundIcon" class="fas fa-volume-up"></i></button>
+        <button onclick="toggleDarkMode()" title="Toggle Dark Mode" class="text-yellow-400 hover:text-yellow-300 dark:text-blue-600 text-lg"><i id="themeIcon" class="fas fa-moon"></i></button>
+      </div>
+    </div>
+
+    <!-- Display -->
+    <div class="text-right text-sm text-gray-400 dark:text-gray-600 mb-1 truncate" id="history"></div>
+    <div id="screen" title="Click to copy" onclick="copyToClipboard()" class="text-right text-3xl break-words text-white dark:text-black mb-5 min-h-[52px] font-mono cursor-pointer hover:opacity-90 transition">0</div>
+
+    <!-- Buttons -->
+    <div class="grid grid-cols-4 gap-4">
+      <button class="btn" onclick="clearScreen()">C</button>
+      <button class="btn" onclick="backspace()">←</button>
+      <button class="btn" onclick="appendToScreen('%')">%</button>
+      <button class="btn-op" onclick="appendToScreen('/')">÷</button>
+
+      <button class="btn" onclick="appendToScreen('7')">7</button>
+      <button class="btn" onclick="appendToScreen('8')">8</button>
+      <button class="btn" onclick="appendToScreen('9')">9</button>
+      <button class="btn-op" onclick="appendToScreen('*')">×</button>
+
+      <button class="btn" onclick="appendToScreen('4')">4</button>
+      <button class="btn" onclick="appendToScreen('5')">5</button>
+      <button class="btn" onclick="appendToScreen('6')">6</button>
+      <button class="btn-op" onclick="appendToScreen('-')">−</button>
+
+      <button class="btn" onclick="appendToScreen('1')">1</button>
+      <button class="btn" onclick="appendToScreen('2')">2</button>
+      <button class="btn" onclick="appendToScreen('3')">3</button>
+      <button class="btn-op" onclick="appendToScreen('+')">+</button>
+
+      <button class="btn col-span-2" onclick="appendToScreen('0')">0</button>
+      <button class="btn" onclick="appendToScreen('.')">.</button>
+      <button class="btn-op" onclick="calculate()">=</button>
+
+      <!-- Scientific Buttons -->
+      <button class="btn" onclick="appendToScreen('sin(')">sin</button>
+      <button class="btn" onclick="appendToScreen('cos(')">cos</button>
+      <button class="btn" onclick="appendToScreen('tan(')">tan</button>
+      <button class="btn" onclick="appendToScreen('log(')">log</button>
+
+      <button class="btn" onclick="appendToScreen('√(')">√</button>
+      <button class="btn" onclick="appendToScreen('^')">^</button>
+      <button class="btn" onclick="appendToScreen('(')">(</button>
+      <button class="btn" onclick="appendToScreen(')')">)</button>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const screen = document.getElementById('screen');
+    const history = document.getElementById('history');
+    const body = document.body;
+    const soundIcon = document.getElementById('soundIcon');
+    const themeIcon = document.getElementById('themeIcon');
+
+    let soundEnabled = true;
+    const clickSound = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+
+    function playSound() {
+      if (soundEnabled) clickSound.play();
+    }
+
+    function appendToScreen(value) {
+      playSound();
+      if (screen.textContent === '0' || screen.textContent === 'Error') {
+        screen.textContent = value;
+      } else {
+        screen.textContent += value;
+      }
+    }
+
+    function clearScreen() {
+      playSound();
+      screen.textContent = '0';
+      history.textContent = '';
+    }
+
+    function backspace() {
+      playSound();
+      const text = screen.textContent;
+      screen.textContent = text.length > 1 ? text.slice(0, -1) : '0';
+    }
+
+    function calculate() {
+      playSound();
+      try {
+        let expression = screen.textContent.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-').replace(/√/g, 'Math.sqrt').replace(/log/g, 'Math.log').replace(/sin/g, 'Math.sin').replace(/cos/g, 'Math.cos').replace(/tan/g, 'Math.tan');
+        const result = new Function(`return (${expression})`)();
+        history.textContent = `${screen.textContent} =`;
+        screen.textContent = result;
+      } catch {
+        screen.textContent = 'Error';
+      }
+    }
+
+    function toggleDarkMode() {
+      body.classList.toggle('dark');
+      themeIcon.classList.toggle('fa-moon');
+      themeIcon.classList.toggle('fa-sun');
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      soundIcon.classList.toggle('fa-volume-up');
+      soundIcon.classList.toggle('fa-volume-mute');
+    }
+
+    function copyToClipboard() {
+      navigator.clipboard.writeText(screen.textContent);
+    }
+  </script>
+
+  <style>
+    body {
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.btn {
+  background-color: #374151;
+  color: #ffffff;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #4b5563;
+}
+
+.btn-op {
+  background-color: #f97316;
+  color: #ffffff;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-op:hover {
+  background-color: #fb923c;
+}
+
+.dark .btn {
+  background-color: #d1d5db;
+  color: #1f2937;
+}
+
+.dark .btn:hover {
+  background-color: #e5e7eb;
+}
+
+.dark .btn-op {
+  background-color: #60a5fa;
+}
+
+.dark .btn-op:hover {
+  background-color: #93c5fd;
+}
+
+#screen {
+  padding: 1rem;
+  background-color: #1f2937;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  font-size: 1.875rem;
+  margin-bottom: 1rem;
+}
+
+.dark #screen {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+#history {
+  color: #9ca3af;
+}
+
+.dark #history {
+  color: #6b7280;
+}
+
+    .btn {
+      @apply bg-gray-700 dark:bg-gray-200 dark:text-black text-white py-4 rounded-xl text-lg hover:bg-gray-600 dark:hover:bg-gray-300 transition font-medium;
+    }
+    .btn-op {
+      @apply bg-orange-500 text-white py-4 rounded-xl text-lg hover:bg-orange-400 transition font-semibold;
+    }
+  </style>
+
+
+</body>
+</html>
